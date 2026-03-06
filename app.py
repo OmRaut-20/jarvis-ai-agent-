@@ -22,22 +22,22 @@ HTML = """
     </style>
 </head>
 <body>
-    <h1>⚡ JARVIS</h1>
+    <h1>&#9889; JARVIS</h1>
     <div id="chat-box"></div>
     <input type="text" id="user-input" placeholder="Ask JARVIS anything..." onkeypress="if(event.key==='Enter') sendMessage()" />
     <button onclick="sendMessage()">Send</button>
     <script>
         function sendMessage() {
-            const input = document.getElementById('user-input');
-            const msg = input.value.trim();
+            var input = document.getElementById('user-input');
+            var msg = input.value.trim();
             if (!msg) return;
-            const box = document.getElementById('chat-box');
-            box.innerHTML += `<div class="user-msg">You: ${msg}</div>`;
+            var box = document.getElementById('chat-box');
+            box.innerHTML += '<div class="user-msg">You: ' + msg + '</div>';
             input.value = '';
             fetch('/chat', { method: 'POST', headers: {'Content-Type': 'application/json'}, body: JSON.stringify({message: msg}) })
-                .then(r => r.json())
-                .then(data => {
-                    box.innerHTML += `<div class="jarvis-msg">JARVIS: ${data.reply}</div>`;
+                .then(function(r) { return r.json(); })
+                .then(function(data) {
+                    box.innerHTML += '<div class="jarvis-msg">JARVIS: ' + data.reply + '</div>';
                     box.scrollTop = box.scrollHeight;
                 });
         }
@@ -61,10 +61,8 @@ def chat():
         )
         return jsonify({"reply": response.choices[0].message.content})
     except Exception as e:
-        return jsonify({"reply": f"Error: {str(e)}"})
+        return jsonify({"reply": "Error: " + str(e)})
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-```
-
