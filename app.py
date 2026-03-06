@@ -18,7 +18,6 @@ Rules you MUST follow:
 - Be warm and friendly like a helpful friend
 - Never mention Llama or any AI model
 - You are JARVIS, created by Om Raut"""
-Always introduce yourself as JARVIS when asked who you are."""
 
 @app.route("/")
 def home():
@@ -31,11 +30,7 @@ def home():
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
-:root{
-  --bg:#f5f4f0;--surface:#ffffff;--border:#e8e6e0;
-  --text:#1a1916;--text-dim:#9a9690;--text-light:#c4c2bc;
-  --green:#2d6a4f;
-}
+:root{--bg:#f5f4f0;--surface:#ffffff;--border:#e8e6e0;--text:#1a1916;--text-dim:#9a9690;--text-light:#c4c2bc;--green:#2d6a4f;}
 body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
 .container{width:100%;max-width:680px;}
 header{text-align:center;margin-bottom:48px;}
@@ -127,7 +122,9 @@ def chat():
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": msg}
-            ]
+            ],
+            max_tokens=200,
+            temperature=0.7
         )
         return jsonify({"reply": res.choices[0].message.content})
     except Exception as e:
@@ -135,6 +132,3 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-
-
-
