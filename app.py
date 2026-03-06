@@ -1,5 +1,4 @@
 import os
-import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from groq import Groq
@@ -9,28 +8,13 @@ app = Flask(__name__)
 CORS(app)
 
 SYSTEM_PROMPT = """You are JARVIS, an advanced AI assistant created by Om Raut. Reply exactly like ChatGPT does.
-
-STRICT FORMATTING RULES:
-- Use emojis to make responses engaging and fun
-- Use clear headings with emojis like: 🤖 What is AI?
-- Use bullet points with emojis for lists
+- Use emojis to make responses engaging
+- Use clear headings with emojis
+- Use bullet points for lists
 - Bold important words using **bold**
-- Keep explanations simple, clear and easy to understand
-- Structure your response with sections when needed
-- End with a friendly closing line
+- Keep explanations simple and clear
 - Never mention Llama or any other model
-- You are JARVIS, created by Om Raut
-
-Example style:
-🤖 **What is Python?**
-Python is a simple and powerful programming language used for many things!
-
-📌 **Why Python?**
-* ✅ Easy to learn
-* 🚀 Used in AI and web development
-* 💡 Huge community support
-
-You can start with Python today — it's beginner friendly! 😊"""
+- You are JARVIS, created by Om Raut"""
 
 @app.route("/")
 def home():
@@ -40,7 +24,8 @@ def home():
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JARVIS</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{--bg:#f5f4f0;--surface:#ffffff;--border:#e8e6e0;--text:#1a1916;--text-dim:#9a9690;--text-light:#c4c2bc;--green:#2d6a4f;}
@@ -53,7 +38,7 @@ header{text-align:center;margin-bottom:48px;}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:breathe 3s ease-in-out infinite;}
 @keyframes breathe{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
 .status-text{font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;}
-.chat-window{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:460px;overflow-y:auto;padding:28px;margin-bottom:12px;scroll-behavior:smooth;box-shadow:0 2px 40px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.06);}
+.chat-window{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:480px;overflow-y:auto;padding:28px;margin-bottom:12px;scroll-behavior:smooth;box-shadow:0 2px 40px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.06);}
 .chat-window::-webkit-scrollbar{width:3px}
 .chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .empty-state{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
@@ -64,11 +49,12 @@ header{text-align:center;margin-bottom:48px;}
 .message-label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;margin-bottom:7px;color:var(--text-dim);}
 .message.jarvis .message-label{color:var(--green);}
 .message-bubble{font-size:0.9rem;line-height:1.8;color:var(--text);font-weight:300;}
-.message-bubble b, .message-bubble strong{font-weight:600;color:var(--text);}
-.message-bubble ul{padding-left:4px;list-style:none;}
-.message-bubble ul li{margin:4px 0;}
 .message-bubble p{margin:6px 0;}
-.message.user .message-bubble{color:var(--text-dim);}
+.message-bubble strong{font-weight:600;}
+.message-bubble ul,.message-bubble ol{padding-left:20px;margin:8px 0;}
+.message-bubble ul li,.message-bubble ol li{margin:4px 0;line-height:1.7;}
+.message-bubble h1,.message-bubble h2,.message-bubble h3{font-size:1rem;font-weight:600;margin:10px 0 6px;}
+.message.user .message-bubble{color:var(--text-dim);font-style:italic;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .input-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:4px 4px 4px 20px;box-shadow:0 2px 20px rgba(0,0,0,0.04);transition:border-color 0.2s,box-shadow 0.2s;}
 .input-area:focus-within{border-color:#c4c2bc;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
@@ -103,24 +89,8 @@ footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-ligh
   <footer>Built by Om Raut &nbsp;&middot;&nbsp; Powered by JARVIS AI</footer>
 </div>
 <script>
+marked.setOptions({breaks:true});
 var empty=document.getElementById('empty'),chat=document.getElementById('chat'),inp=document.getElementById('inp'),hasMessages=false;
-
-function formatText(text) {
-  // Bold
-  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
-  // Bullet points
-  text = text.replace(/^\* (.+)$/gm, '<li>$1</li>');
-  text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
-  // Wrap consecutive li in ul
-  text = text.replace(/(<li>.*<\/li>\n?)+/g, function(m){ return '<ul>'+m+'</ul>'; });
-  // Numbered lists
-  text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
-  // Line breaks
-  text = text.replace(/\n\n/g, '</p><p>');
-  text = text.replace(/\n/g, '<br>');
-  return '<p>' + text + '</p>';
-}
-
 function send(){
   var msg=inp.value.trim();if(!msg)return;
   if(!hasMessages){empty.style.display='none';hasMessages=true;}else{addDivider();}
@@ -131,9 +101,9 @@ function send(){
     .then(function(d){t.remove();addDivider();addMessage('jarvis',d.reply,true)})
     .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.',false);});
 }
-function addMessage(role,text,format){
+function addMessage(role,text,renderMarkdown){
   var div=document.createElement('div');div.className='message '+role;
-  var content = format ? formatText(text) : text;
+  var content = renderMarkdown ? marked.parse(text) : text;
   div.innerHTML='<div class="message-label">'+(role==='user'?'You':'Jarvis')+'</div><div class="message-bubble">'+content+'</div>';
   chat.appendChild(div);chat.scrollTop=chat.scrollHeight;return div;
 }
