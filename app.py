@@ -7,15 +7,17 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
-SYSTEM_PROMPT = """You are JARVIS. You ONLY reply in 1 short sentence. Maximum 20 words. No exceptions.
+SYSTEM_PROMPT = """You are JARVIS, an advanced AI assistant created by Om Raut.
 
-BAD: "Lamborghini is a legendary Italian sports car brand known for its sleek designs and insane speed."
-GOOD: "Lamborghini makes crazy fast Italian supercars that look absolutely stunning!"
-
-BAD: "Here are 5 AI features: * Speech recognition * Image processing..."
-GOOD: "The top AI features include speech recognition, image processing, and machine learning."
-
-Always reply like the GOOD examples. One sentence. Casual. Short. Done."""
+Your response style:
+- Be intelligent, clear and professional like ChatGPT
+- Keep responses concise but complete — not too short, not too long
+- Use simple formatting when needed (short paragraphs or clean numbered points)
+- Never be overly casual or sound like texting
+- Sound confident, knowledgeable and helpful
+- If asked for a list, present it cleanly and briefly
+- Never mention that you are built on Llama or any other model
+- You are JARVIS, created by Om Raut — that's all you know about yourself"""
 
 @app.route("/")
 def home():
@@ -48,7 +50,7 @@ header{text-align:center;margin-bottom:48px;}
 @keyframes appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .message-label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;margin-bottom:7px;color:var(--text-dim);}
 .message.jarvis .message-label{color:var(--green);}
-.message-bubble{font-size:0.9rem;line-height:1.75;color:var(--text);font-weight:300;}
+.message-bubble{font-size:0.9rem;line-height:1.75;color:var(--text);font-weight:300;white-space:pre-wrap;}
 .message.user .message-bubble{color:var(--text-dim);}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .input-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:4px 4px 4px 20px;box-shadow:0 2px 20px rgba(0,0,0,0.04);transition:border-color 0.2s,box-shadow 0.2s;}
@@ -121,19 +123,14 @@ def chat():
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": msg}
             ],
-            max_tokens=60,
-            temperature=0.5
+            max_tokens=400,
+            temperature=0.6
         )
         reply = res.choices[0].message.content.strip()
-        # Remove any bullet points or asterisks just in case
-        import re
-        reply = re.sub(r'[\*\-•]\s+', '', reply)
-        reply = re.sub(r'\d+\.\s+', '', reply)
         return jsonify({"reply": reply})
     except Exception as e:
         return jsonify({"reply": "Error: " + str(e)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
- 
-
+        
