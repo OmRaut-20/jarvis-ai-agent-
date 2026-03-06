@@ -50,10 +50,10 @@ header{text-align:center;margin-bottom:48px;}
 .message.jarvis .message-label{color:var(--green);}
 .message-bubble{font-size:0.9rem;line-height:1.8;color:var(--text);font-weight:300;}
 .message-bubble p{margin:6px 0;}
-.message-bubble strong{font-weight:600;}
+.message-bubble strong{font-weight:600;color:#1a1916;}
 .message-bubble ul,.message-bubble ol{padding-left:20px;margin:8px 0;}
-.message-bubble ul li,.message-bubble ol li{margin:4px 0;line-height:1.7;}
-.message-bubble h1,.message-bubble h2,.message-bubble h3{font-size:1rem;font-weight:600;margin:10px 0 6px;}
+.message-bubble ul li,.message-bubble ol li{margin:5px 0;line-height:1.7;}
+.message-bubble h1,.message-bubble h2,.message-bubble h3{font-size:1rem;font-weight:600;margin:12px 0 6px;}
 .message.user .message-bubble{color:var(--text-dim);font-style:italic;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .input-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:4px 4px 4px 20px;box-shadow:0 2px 20px rgba(0,0,0,0.04);transition:border-color 0.2s,box-shadow 0.2s;}
@@ -89,7 +89,7 @@ footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-ligh
   <footer>Built by Om Raut &nbsp;&middot;&nbsp; Powered by JARVIS AI</footer>
 </div>
 <script>
-marked.setOptions({breaks:true});
+marked.setOptions({breaks:true,gfm:true});
 var empty=document.getElementById('empty'),chat=document.getElementById('chat'),inp=document.getElementById('inp'),hasMessages=false;
 function send(){
   var msg=inp.value.trim();if(!msg)return;
@@ -99,13 +99,26 @@ function send(){
   fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
     .then(function(r){return r.json()})
     .then(function(d){t.remove();addDivider();addMessage('jarvis',d.reply,true)})
-    .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.',false);});
+    .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong.',false);});
 }
-function addMessage(role,text,renderMarkdown){
-  var div=document.createElement('div');div.className='message '+role;
-  var content = renderMarkdown ? marked.parse(text) : text;
-  div.innerHTML='<div class="message-label">'+(role==='user'?'You':'Jarvis')+'</div><div class="message-bubble">'+content+'</div>';
-  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;return div;
+function addMessage(role,text,renderMd){
+  var div=document.createElement('div');
+  div.className='message '+role;
+  var bubble=document.createElement('div');
+  bubble.className='message-bubble';
+  if(renderMd){
+    bubble.innerHTML=marked.parse(text);
+  } else {
+    bubble.textContent=text;
+  }
+  var label=document.createElement('div');
+  label.className='message-label';
+  label.textContent=role==='user'?'You':'Jarvis';
+  div.appendChild(label);
+  div.appendChild(bubble);
+  chat.appendChild(div);
+  chat.scrollTop=chat.scrollHeight;
+  return div;
 }
 function addDivider(){var d=document.createElement('div');d.className='divider';chat.appendChild(d);}
 function addThinking(){
@@ -138,3 +151,5 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+ 
+      
