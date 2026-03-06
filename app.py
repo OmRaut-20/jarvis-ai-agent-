@@ -1,4 +1,5 @@
 import os
+import re
 from flask import Flask, request, jsonify
 from flask_cors import CORS
 from groq import Groq
@@ -7,17 +8,29 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
-SYSTEM_PROMPT = """You are JARVIS, an advanced AI assistant created by Om Raut.
+SYSTEM_PROMPT = """You are JARVIS, an advanced AI assistant created by Om Raut. Reply exactly like ChatGPT does.
 
-Your response style:
-- Be intelligent, clear and professional like ChatGPT
-- Keep responses concise but complete — not too short, not too long
-- Use simple formatting when needed (short paragraphs or clean numbered points)
-- Never be overly casual or sound like texting
-- Sound confident, knowledgeable and helpful
-- If asked for a list, present it cleanly and briefly
-- Never mention that you are built on Llama or any other model
-- You are JARVIS, created by Om Raut — that's all you know about yourself"""
+STRICT FORMATTING RULES:
+- Use emojis to make responses engaging and fun
+- Use clear headings with emojis like: 🤖 What is AI?
+- Use bullet points with emojis for lists
+- Bold important words using **bold**
+- Keep explanations simple, clear and easy to understand
+- Structure your response with sections when needed
+- End with a friendly closing line
+- Never mention Llama or any other model
+- You are JARVIS, created by Om Raut
+
+Example style:
+🤖 **What is Python?**
+Python is a simple and powerful programming language used for many things!
+
+📌 **Why Python?**
+* ✅ Easy to learn
+* 🚀 Used in AI and web development
+* 💡 Huge community support
+
+You can start with Python today — it's beginner friendly! 😊"""
 
 @app.route("/")
 def home():
@@ -40,7 +53,7 @@ header{text-align:center;margin-bottom:48px;}
 .dot{width:5px;height:5px;border-radius:50%;background:var(--green);animation:breathe 3s ease-in-out infinite;}
 @keyframes breathe{0%,100%{opacity:0.4;transform:scale(1)}50%{opacity:1;transform:scale(1.2)}}
 .status-text{font-size:0.68rem;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;}
-.chat-window{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:440px;overflow-y:auto;padding:28px;margin-bottom:12px;scroll-behavior:smooth;box-shadow:0 2px 40px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.06);}
+.chat-window{background:var(--surface);border:1px solid var(--border);border-radius:16px;height:460px;overflow-y:auto;padding:28px;margin-bottom:12px;scroll-behavior:smooth;box-shadow:0 2px 40px rgba(0,0,0,0.04),0 1px 3px rgba(0,0,0,0.06);}
 .chat-window::-webkit-scrollbar{width:3px}
 .chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .empty-state{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
@@ -50,7 +63,11 @@ header{text-align:center;margin-bottom:48px;}
 @keyframes appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .message-label{font-size:0.62rem;letter-spacing:0.14em;text-transform:uppercase;font-weight:500;margin-bottom:7px;color:var(--text-dim);}
 .message.jarvis .message-label{color:var(--green);}
-.message-bubble{font-size:0.9rem;line-height:1.75;color:var(--text);font-weight:300;white-space:pre-wrap;}
+.message-bubble{font-size:0.9rem;line-height:1.8;color:var(--text);font-weight:300;}
+.message-bubble b, .message-bubble strong{font-weight:600;color:var(--text);}
+.message-bubble ul{padding-left:4px;list-style:none;}
+.message-bubble ul li{margin:4px 0;}
+.message-bubble p{margin:6px 0;}
 .message.user .message-bubble{color:var(--text-dim);}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .input-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:4px 4px 4px 20px;box-shadow:0 2px 20px rgba(0,0,0,0.04);transition:border-color 0.2s,box-shadow 0.2s;}
@@ -87,19 +104,37 @@ footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-ligh
 </div>
 <script>
 var empty=document.getElementById('empty'),chat=document.getElementById('chat'),inp=document.getElementById('inp'),hasMessages=false;
+
+function formatText(text) {
+  // Bold
+  text = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>');
+  // Bullet points
+  text = text.replace(/^\* (.+)$/gm, '<li>$1</li>');
+  text = text.replace(/^- (.+)$/gm, '<li>$1</li>');
+  // Wrap consecutive li in ul
+  text = text.replace(/(<li>.*<\/li>\n?)+/g, function(m){ return '<ul>'+m+'</ul>'; });
+  // Numbered lists
+  text = text.replace(/^\d+\. (.+)$/gm, '<li>$1</li>');
+  // Line breaks
+  text = text.replace(/\n\n/g, '</p><p>');
+  text = text.replace(/\n/g, '<br>');
+  return '<p>' + text + '</p>';
+}
+
 function send(){
   var msg=inp.value.trim();if(!msg)return;
   if(!hasMessages){empty.style.display='none';hasMessages=true;}else{addDivider();}
-  addMessage('user',msg);inp.value='';
+  addMessage('user',msg,false);inp.value='';
   var t=addThinking();
   fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
     .then(function(r){return r.json()})
-    .then(function(d){t.remove();addDivider();addMessage('jarvis',d.reply)})
-    .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.');});
+    .then(function(d){t.remove();addDivider();addMessage('jarvis',d.reply,true)})
+    .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.',false);});
 }
-function addMessage(role,text){
+function addMessage(role,text,format){
   var div=document.createElement('div');div.className='message '+role;
-  div.innerHTML='<div class="message-label">'+(role==='user'?'You':'Jarvis')+'</div><div class="message-bubble">'+text+'</div>';
+  var content = format ? formatText(text) : text;
+  div.innerHTML='<div class="message-label">'+(role==='user'?'You':'Jarvis')+'</div><div class="message-bubble">'+content+'</div>';
   chat.appendChild(div);chat.scrollTop=chat.scrollHeight;return div;
 }
 function addDivider(){var d=document.createElement('div');d.className='divider';chat.appendChild(d);}
@@ -123,8 +158,8 @@ def chat():
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": msg}
             ],
-            max_tokens=400,
-            temperature=0.6
+            max_tokens=600,
+            temperature=0.7
         )
         reply = res.choices[0].message.content.strip()
         return jsonify({"reply": reply})
@@ -133,4 +168,3 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-        
