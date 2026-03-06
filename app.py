@@ -7,6 +7,20 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
+SYSTEM_PROMPT = """You are JARVIS, a highly intelligent, calm, and helpful AI assistant created by Om Raut.
+
+Your personality:
+- You are warm, friendly, and conversational — like talking to a brilliant friend
+- You give clear, concise, and helpful answers
+- You are confident but never arrogant
+- You use simple language, avoid unnecessary jargon
+- You are witty and occasionally use light humor
+- You always stay focused on helping the user
+- When answering questions, you get straight to the point
+- You never say you are built on Llama or any other model — you are JARVIS, created by Om Raut
+
+Always introduce yourself as JARVIS when asked who you are."""
+
 @app.route("/")
 def home():
     return """<!DOCTYPE html>
@@ -19,26 +33,11 @@ def home():
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#f5f4f0;
-  --surface:#ffffff;
-  --border:#e8e6e0;
-  --text:#1a1916;
-  --text-dim:#9a9690;
-  --text-light:#c4c2bc;
+  --bg:#f5f4f0;--surface:#ffffff;--border:#e8e6e0;
+  --text:#1a1916;--text-dim:#9a9690;--text-light:#c4c2bc;
   --green:#2d6a4f;
-  --user-bg:#f0ede6;
 }
-body{
-  background:var(--bg);
-  color:var(--text);
-  font-family:'Inter',sans-serif;
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:32px 24px;
-}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:32px 24px;}
 .container{width:100%;max-width:680px;}
 header{text-align:center;margin-bottom:48px;}
 .logo{font-family:'Playfair Display',serif;font-weight:400;font-size:2.2rem;color:var(--text);letter-spacing:0.08em;margin-bottom:8px;}
@@ -51,7 +50,7 @@ header{text-align:center;margin-bottom:48px;}
 .chat-window::-webkit-scrollbar{width:3px}
 .chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .empty-state{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;}
-.empty-icon{font-family:'Playfair Display',serif;font-size:3.5rem;color:var(--text-light);letter-spacing:0.1em;}
+.empty-icon{font-family:'Playfair Display',serif;font-size:3.5rem;color:var(--text-light);}
 .empty-hint{font-size:0.72rem;color:var(--text-light);letter-spacing:0.12em;text-transform:uppercase;}
 .message{margin-bottom:24px;animation:appear 0.4s ease;}
 @keyframes appear{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
@@ -62,14 +61,13 @@ header{text-align:center;margin-bottom:48px;}
 .divider{height:1px;background:var(--border);margin:20px 0;}
 .input-area{background:var(--surface);border:1px solid var(--border);border-radius:12px;display:flex;align-items:center;padding:4px 4px 4px 20px;box-shadow:0 2px 20px rgba(0,0,0,0.04);transition:border-color 0.2s,box-shadow 0.2s;}
 .input-area:focus-within{border-color:#c4c2bc;box-shadow:0 2px 20px rgba(0,0,0,0.08);}
-input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:300;padding:12px 0;letter-spacing:0.01em;}
+input{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:0.875rem;font-weight:300;padding:12px 0;}
 input::placeholder{color:var(--text-light)}
 button{background:var(--text);border:none;color:#f5f4f0;font-family:'Inter',sans-serif;font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;padding:11px 20px;border-radius:8px;cursor:pointer;transition:all 0.2s;white-space:nowrap;flex-shrink:0;}
 button:hover{background:#333;transform:translateY(-1px);}
 .thinking{display:flex;align-items:center;gap:5px;padding:4px 0;}
 .t-dot{width:5px;height:5px;border-radius:50%;background:var(--text-light);animation:think 1.4s ease-in-out infinite;}
-.t-dot:nth-child(2){animation-delay:0.2s}
-.t-dot:nth-child(3){animation-delay:0.4s}
+.t-dot:nth-child(2){animation-delay:0.2s}.t-dot:nth-child(3){animation-delay:0.4s}
 @keyframes think{0%,100%{opacity:0.3;transform:translateY(0)}50%{opacity:1;transform:translateY(-3px)}}
 footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-light);letter-spacing:0.1em;text-transform:uppercase;}
 </style>
@@ -79,10 +77,7 @@ footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-ligh
   <header>
     <div class="logo">Jarvis</div>
     <div class="tagline">Your personal AI assistant</div>
-    <div class="status-bar">
-      <div class="dot"></div>
-      <span class="status-text">Online &mdash; Ready</span>
-    </div>
+    <div class="status-bar"><div class="dot"></div><span class="status-text">Online &mdash; Ready</span></div>
   </header>
   <div class="chat-window" id="chat">
     <div class="empty-state" id="empty">
@@ -94,20 +89,14 @@ footer{margin-top:16px;text-align:center;font-size:0.65rem;color:var(--text-ligh
     <input type="text" id="inp" placeholder="Ask Jarvis anything..." onkeypress="if(event.key==='Enter')send()" autofocus/>
     <button onclick="send()">Send</button>
   </div>
-  <footer>Built by Om Raut &nbsp;&middot;&nbsp; Powered by Llama 3.3</footer>
+  <footer>Built by Om Raut &nbsp;&middot;&nbsp; Powered by JARVIS AI</footer>
 </div>
 <script>
-var empty=document.getElementById('empty');
-var chat=document.getElementById('chat');
-var inp=document.getElementById('inp');
-var hasMessages=false;
+var empty=document.getElementById('empty'),chat=document.getElementById('chat'),inp=document.getElementById('inp'),hasMessages=false;
 function send(){
-  var msg=inp.value.trim();
-  if(!msg)return;
-  if(!hasMessages){empty.style.display='none';hasMessages=true;}
-  else{addDivider();}
-  addMessage('user',msg);
-  inp.value='';
+  var msg=inp.value.trim();if(!msg)return;
+  if(!hasMessages){empty.style.display='none';hasMessages=true;}else{addDivider();}
+  addMessage('user',msg);inp.value='';
   var t=addThinking();
   fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
     .then(function(r){return r.json()})
@@ -115,21 +104,15 @@ function send(){
     .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.');});
 }
 function addMessage(role,text){
-  var div=document.createElement('div');
-  div.className='message '+role;
+  var div=document.createElement('div');div.className='message '+role;
   div.innerHTML='<div class="message-label">'+(role==='user'?'You':'Jarvis')+'</div><div class="message-bubble">'+text+'</div>';
-  chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
-  return div;
+  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;return div;
 }
 function addDivider(){var d=document.createElement('div');d.className='divider';chat.appendChild(d);}
 function addThinking(){
-  var div=document.createElement('div');
-  div.className='message jarvis';
+  var div=document.createElement('div');div.className='message jarvis';
   div.innerHTML='<div class="message-label">Jarvis</div><div class="message-bubble"><div class="thinking"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div>';
-  chat.appendChild(div);
-  chat.scrollTop=chat.scrollHeight;
-  return div;
+  chat.appendChild(div);chat.scrollTop=chat.scrollHeight;return div;
 }
 </script>
 </body>
@@ -142,7 +125,10 @@ def chat():
     try:
         res = client.chat.completions.create(
             model="llama-3.3-70b-versatile",
-            messages=[{"role": "user", "content": msg}]
+            messages=[
+                {"role": "system", "content": SYSTEM_PROMPT},
+                {"role": "user", "content": msg}
+            ]
         )
         return jsonify({"reply": res.choices[0].message.content})
     except Exception as e:
@@ -151,6 +137,5 @@ def chat():
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
 
- 
 
 
