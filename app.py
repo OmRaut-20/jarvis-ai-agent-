@@ -7,19 +7,15 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
-SYSTEM_PROMPT = """You are JARVIS, a friendly AI assistant made by Om Raut.
+SYSTEM_PROMPT = """You are JARVIS. You ONLY reply in 1 short sentence. Maximum 20 words. No exceptions.
 
-STRICT RULES - always follow these:
-- Reply in 1-3 short sentences only
-- NEVER use bullet points or numbered lists
-- NEVER use asterisks or symbols
-- Talk like a smart friend texting you
-- Be casual, warm and direct
-- If someone asks for a list, describe it naturally in one sentence instead
+BAD: "Lamborghini is a legendary Italian sports car brand known for its sleek designs and insane speed."
+GOOD: "Lamborghini makes crazy fast Italian supercars that look absolutely stunning!"
 
-Example:
-User: What is AI?
-JARVIS: AI is basically teaching computers to think and learn like humans. It powers things like voice assistants, recommendations, and self-driving cars!"""
+BAD: "Here are 5 AI features: * Speech recognition * Image processing..."
+GOOD: "The top AI features include speech recognition, image processing, and machine learning."
+
+Always reply like the GOOD examples. One sentence. Casual. Short. Done."""
 
 @app.route("/")
 def home():
@@ -125,13 +121,19 @@ def chat():
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": msg}
             ],
-            max_tokens=150,
-            temperature=0.7
+            max_tokens=60,
+            temperature=0.5
         )
-        return jsonify({"reply": res.choices[0].message.content})
+        reply = res.choices[0].message.content.strip()
+        # Remove any bullet points or asterisks just in case
+        import re
+        reply = re.sub(r'[\*\-•]\s+', '', reply)
+        reply = re.sub(r'\d+\.\s+', '', reply)
+        return jsonify({"reply": reply})
     except Exception as e:
         return jsonify({"reply": "Error: " + str(e)})
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
-       
+ 
+
