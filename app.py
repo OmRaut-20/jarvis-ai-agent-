@@ -23,313 +23,347 @@ def home():
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
-<title>JARVIS AI</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=DM+Serif+Display:ital@0;1&display=swap" rel="stylesheet">
+<title>JARVIS — AI Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Lora:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/marked/9.1.6/marked.min.js"></script>
 <style>
-*{margin:0;padding:0;box-sizing:border-box}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
 :root{
-  --bg:#f8f6f2;
-  --sidebar:#f1ede7;
-  --surface:#ffffff;
-  --surface2:#f4f1ec;
-  --border:#e6e1da;
-  --border2:#d9d4cc;
-  --text:#1a1714;
-  --text-dim:#8c877f;
-  --text-light:#c0bab2;
-  --accent:#5a7a4a;
-  --accent2:#7a9e68;
-  --accent-light:#eaf0e5;
-  --user-bg:#edeae4;
-  --shadow:rgba(0,0,0,0.07);
+  --bg:#ffffff;
+  --bg2:#f9f9f8;
+  --sidebar:#f7f6f3;
+  --border:#e9e9e7;
+  --border2:#d9d9d6;
+  --text:#1a1a18;
+  --text-dim:#9b9a97;
+  --text-light:#d3d2ce;
+  --accent:#2f6f3f;
+  --accent-soft:#ebf3ed;
+  --accent-border:#c3ddc9;
+  --user-bg:#f1f0ec;
+  --shadow-sm:0 1px 3px rgba(0,0,0,0.06);
+  --shadow-md:0 4px 16px rgba(0,0,0,0.08);
+  --shadow-lg:0 12px 40px rgba(0,0,0,0.1);
+  --radius:10px;
+  --radius-lg:16px;
 }
-
 html,body{height:100%;overflow:hidden;}
-body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:15px;}
 
-/* ===== LANDING PAGE ===== */
+/* ======== LANDING ======== */
 #landing{
-  position:fixed;inset:0;
-  background:var(--bg);
-  display:flex;flex-direction:column;
-  align-items:center;justify-content:center;
-  z-index:100;padding:24px;
-  text-align:center;
-  transition:opacity 0.6s ease, transform 0.6s ease;
+  position:fixed;inset:0;background:var(--bg);
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  z-index:200;padding:24px;text-align:center;
+  transition:opacity 0.5s ease,transform 0.5s ease;
 }
-#landing.hide{opacity:0;transform:translateY(-20px);pointer-events:none;}
+#landing.out{opacity:0;transform:scale(0.98);pointer-events:none;}
 
-.land-badge{
-  display:inline-flex;align-items:center;gap:8px;
-  background:var(--accent-light);border:1px solid #c8dbb8;
-  border-radius:20px;padding:6px 16px;
-  font-size:0.75rem;color:var(--accent);
-  font-weight:500;letter-spacing:0.05em;
-  margin-bottom:32px;
-  animation:fadeUp 0.6s ease 0.1s both;
+.land-nav{
+  position:absolute;top:0;left:0;right:0;
+  padding:18px 28px;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--border);
 }
-.land-dot{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:breathe 2s infinite;}
-@keyframes breathe{0%,100%{opacity:0.4}50%{opacity:1}}
+.land-nav-logo{display:flex;align-items:center;gap:9px;}
+.nav-icon{width:28px;height:28px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:0.85rem;color:#fff;}
+.nav-name{font-size:0.9rem;font-weight:500;color:var(--text);}
+.nav-tag{font-size:0.72rem;color:var(--text-dim);background:var(--bg2);border:1px solid var(--border);border-radius:6px;padding:3px 9px;}
 
-.land-icon{
-  width:90px;height:90px;
-  background:var(--accent);
-  border-radius:28px;
-  display:flex;align-items:center;justify-content:center;
-  font-family:'DM Serif Display',serif;
-  font-size:2.4rem;color:#fff;
-  margin:0 auto 28px;
-  box-shadow:0 12px 40px rgba(90,122,74,0.3);
-  animation:fadeUp 0.6s ease 0.2s both, float 4s ease-in-out 1s infinite;
+.land-body{max-width:540px;width:100%;}
+.land-eyebrow{
+  display:inline-flex;align-items:center;gap:7px;
+  font-size:0.72rem;font-weight:500;
+  color:var(--accent);letter-spacing:0.08em;text-transform:uppercase;
+  background:var(--accent-soft);border:1px solid var(--accent-border);
+  border-radius:20px;padding:5px 14px;margin-bottom:28px;
 }
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
-@keyframes fadeUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.eye-dot{width:5px;height:5px;background:var(--accent);border-radius:50%;animation:blink2 2s infinite;}
+@keyframes blink2{0%,100%{opacity:0.4}50%{opacity:1}}
 
-.land-title{
-  font-family:'DM Serif Display',serif;
-  font-size:clamp(2.2rem,6vw,3.8rem);
-  color:var(--text);line-height:1.1;
-  margin-bottom:16px;
-  animation:fadeUp 0.6s ease 0.3s both;
+.land-h{
+  font-family:'Lora',serif;
+  font-size:clamp(2rem,5.5vw,3.2rem);
+  line-height:1.15;color:var(--text);
+  margin-bottom:18px;letter-spacing:-0.01em;
 }
-.land-title em{font-style:italic;color:var(--accent);}
+.land-h em{font-style:italic;color:var(--accent);}
 
-.land-sub{
-  font-size:clamp(0.9rem,2.5vw,1.05rem);
-  color:var(--text-dim);max-width:480px;
-  line-height:1.7;margin-bottom:40px;
-  animation:fadeUp 0.6s ease 0.4s both;
+.land-p{
+  font-size:clamp(0.88rem,2vw,1rem);
+  color:var(--text-dim);line-height:1.75;
+  margin-bottom:36px;
 }
 
-.land-cta{
-  display:inline-flex;align-items:center;gap:10px;
+.land-actions{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:48px;}
+.btn-primary{
+  display:inline-flex;align-items:center;gap:9px;
   background:var(--accent);color:#fff;
-  border:none;border-radius:14px;
-  padding:16px 32px;cursor:pointer;
-  font-family:'Inter',sans-serif;font-size:0.95rem;font-weight:500;
+  border:none;border-radius:var(--radius);
+  padding:13px 26px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:500;
+  box-shadow:0 2px 12px rgba(47,111,63,0.3);
   transition:all 0.2s;
-  box-shadow:0 4px 20px rgba(90,122,74,0.35);
-  animation:fadeUp 0.6s ease 0.5s both;
 }
-.land-cta:hover{background:var(--accent2);transform:translateY(-2px);box-shadow:0 8px 28px rgba(90,122,74,0.4);}
-.land-cta svg{width:18px;height:18px;fill:#fff;transition:transform 0.2s;}
-.land-cta:hover svg{transform:translateX(3px);}
+.btn-primary:hover{background:#266035;transform:translateY(-1px);box-shadow:0 4px 18px rgba(47,111,63,0.4);}
+.btn-primary svg{width:16px;height:16px;fill:none;stroke:#fff;stroke-width:2;transition:transform 0.2s;}
+.btn-primary:hover svg{transform:translateX(3px);}
+.btn-secondary{
+  display:inline-flex;align-items:center;gap:7px;
+  background:transparent;color:var(--text-dim);
+  border:1px solid var(--border2);border-radius:var(--radius);
+  padding:13px 22px;cursor:pointer;
+  font-family:'Inter',sans-serif;font-size:0.9rem;font-weight:400;
+  transition:all 0.2s;
+}
+.btn-secondary:hover{color:var(--text);border-color:var(--border2);background:var(--bg2);}
 
-.land-features{
-  display:flex;flex-wrap:wrap;gap:12px;
-  justify-content:center;max-width:500px;
-  margin-top:40px;
-  animation:fadeUp 0.6s ease 0.6s both;
+.land-cards{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+.land-card{
+  background:var(--bg2);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 18px;
+  text-align:left;max-width:160px;
+  box-shadow:var(--shadow-sm);
 }
-.land-feat{
-  display:flex;align-items:center;gap:7px;
-  background:var(--surface);border:1px solid var(--border);
-  border-radius:10px;padding:9px 14px;
-  font-size:0.78rem;color:var(--text-dim);
-  box-shadow:0 1px 4px var(--shadow);
-}
-.land-feat-icon{font-size:0.9rem;}
+.card-icon{font-size:1.2rem;margin-bottom:8px;}
+.card-title{font-size:0.78rem;font-weight:500;color:var(--text);margin-bottom:3px;}
+.card-desc{font-size:0.71rem;color:var(--text-dim);line-height:1.5;}
 
-.land-credit{
-  margin-top:32px;font-size:0.72rem;
-  color:var(--text-light);letter-spacing:0.05em;
-  animation:fadeUp 0.6s ease 0.7s both;
+.land-foot{
+  position:absolute;bottom:0;left:0;right:0;
+  padding:14px;text-align:center;
+  font-size:0.68rem;color:var(--text-light);
+  border-top:1px solid var(--border);
 }
 
-/* ===== APP ===== */
-#app{
-  display:none;flex;height:100vh;
-  opacity:0;transition:opacity 0.5s ease;
-}
-#app.show{display:flex;opacity:1;}
-
-/* Sidebar */
-.sidebar{
-  width:240px;flex-shrink:0;
-  background:var(--sidebar);
-  border-right:1px solid var(--border);
-  display:flex;flex-direction:column;
-  height:100vh;
-  transition:transform 0.3s ease;
-}
-@media(max-width:768px){
-  .sidebar{position:fixed;left:0;top:0;bottom:0;z-index:50;transform:translateX(-100%);}
-  .sidebar.open{transform:translateX(0);box-shadow:4px 0 20px var(--shadow);}
-}
-.sidebar-header{padding:20px 14px 14px;}
-.logo-wrap{display:flex;align-items:center;gap:10px;margin-bottom:18px;}
-.logo-icon{width:32px;height:32px;background:var(--accent);border-radius:9px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:0.95rem;color:#fff;box-shadow:0 2px 8px rgba(90,122,74,0.3);}
-.logo-text{font-family:'DM Serif Display',serif;font-size:1.1rem;color:var(--text);}
-.new-btn{width:100%;background:var(--surface);border:1px solid var(--border2);color:var(--text-dim);border-radius:10px;padding:9px 14px;cursor:pointer;font-family:'Inter',sans-serif;font-size:0.81rem;transition:all 0.2s;display:flex;align-items:center;gap:8px;box-shadow:0 1px 3px var(--shadow);}
-.new-btn:hover{color:var(--text);border-color:var(--accent2);background:var(--accent-light);}
-.section-label{font-size:0.61rem;color:var(--text-light);letter-spacing:0.12em;text-transform:uppercase;padding:0 14px;margin:14px 0 6px;}
-.chat-list{padding:0 6px;flex:1;overflow-y:auto;}
-.chat-entry{padding:8px 10px;border-radius:8px;font-size:0.8rem;color:var(--text-dim);cursor:pointer;transition:all 0.15s;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px;}
-.chat-entry:hover{background:var(--surface);color:var(--text);}
-.chat-entry.active{background:var(--surface);color:var(--text);}
-.sidebar-footer{padding:14px;border-top:1px solid var(--border);}
-.user-card{display:flex;align-items:center;gap:10px;padding:9px;border-radius:10px;cursor:pointer;transition:all 0.15s;}
-.user-card:hover{background:var(--surface);}
-.avatar{width:32px;height:32px;background:var(--accent);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.82rem;font-weight:500;color:#fff;flex-shrink:0;}
-.user-name{font-size:0.83rem;font-weight:500;}
-.user-sub{font-size:0.67rem;color:var(--text-light);}
-
-/* Main */
-.main{flex:1;display:flex;flex-direction:column;height:100vh;overflow:hidden;min-width:0;}
+/* ======== APP ======== */
+#app{display:none;height:100vh;flex-direction:column;}
+#app.show{display:flex;}
 
 /* Topbar */
-.topbar{display:flex;align-items:center;justify-content:space-between;padding:12px 18px;border-bottom:1px solid var(--border);flex-shrink:0;background:var(--surface);}
-.topbar-left{display:flex;align-items:center;gap:12px;}
-.menu-btn{display:none;background:transparent;border:none;cursor:pointer;padding:6px;border-radius:8px;color:var(--text-dim);}
-.menu-btn:hover{background:var(--surface2);}
-@media(max-width:768px){.menu-btn{display:flex;align-items:center;justify-content:center;}}
-.model-pill{display:flex;align-items:center;gap:7px;background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 13px;font-size:0.78rem;color:var(--text-dim);}
-.status-dot{width:6px;height:6px;background:var(--accent2);border-radius:50%;animation:breathe 3s ease-in-out infinite;}
-.share-btn{background:transparent;border:1px solid var(--border2);color:var(--text-dim);border-radius:8px;padding:6px 14px;cursor:pointer;font-size:0.77rem;font-family:'Inter',sans-serif;transition:all 0.15s;}
-.share-btn:hover{color:var(--text);background:var(--surface2);}
+.topbar{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 18px;height:52px;
+  border-bottom:1px solid var(--border);
+  background:var(--bg);flex-shrink:0;
+}
+.tb-left{display:flex;align-items:center;gap:12px;}
+.tb-logo{display:flex;align-items:center;gap:8px;}
+.tb-icon{width:26px;height:26px;background:var(--accent);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Lora',serif;font-size:0.8rem;color:#fff;}
+.tb-name{font-size:0.9rem;font-weight:500;}
+.tb-divider{width:1px;height:18px;background:var(--border2);}
+.tb-model{font-size:0.75rem;color:var(--text-dim);display:flex;align-items:center;gap:6px;}
+.online-dot{width:5px;height:5px;background:#4caf76;border-radius:50%;animation:blink2 3s infinite;}
+.tb-right{display:flex;align-items:center;gap:8px;}
+.tb-btn{background:transparent;border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 13px;cursor:pointer;font-size:0.75rem;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.tb-btn:hover{color:var(--text);background:var(--bg2);}
+.new-chat-tb{display:flex;align-items:center;gap:6px;background:var(--bg2);border:1px solid var(--border);color:var(--text-dim);border-radius:7px;padding:5px 12px;cursor:pointer;font-size:0.75rem;font-family:'Inter',sans-serif;transition:all 0.15s;}
+.new-chat-tb:hover{color:var(--text);border-color:var(--border2);}
 
 /* Chat */
 .chat-area{flex:1;overflow-y:auto;scroll-behavior:smooth;}
-.chat-area::-webkit-scrollbar{width:3px}
-.chat-area::-webkit-scrollbar-thumb{background:var(--border2);border-radius:2px}
+.chat-area::-webkit-scrollbar{width:4px}
+.chat-area::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 
-/* Welcome */
-.welcome{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100%;padding:40px 20px;text-align:center;}
-.welcome-icon{width:64px;height:64px;background:var(--accent);border-radius:18px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:1.8rem;color:#fff;margin-bottom:20px;box-shadow:0 6px 24px rgba(90,122,74,0.25);animation:float 4s ease-in-out infinite;}
-.welcome h1{font-family:'DM Serif Display',serif;font-size:1.7rem;margin-bottom:8px;}
-.welcome p{font-size:0.86rem;color:var(--text-dim);max-width:380px;line-height:1.7;margin-bottom:28px;}
-.chips{display:flex;flex-wrap:wrap;gap:9px;justify-content:center;max-width:520px;}
-.chip{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 14px;cursor:pointer;font-size:0.8rem;color:var(--text-dim);transition:all 0.2s;text-align:left;line-height:1.5;box-shadow:0 1px 4px var(--shadow);}
-.chip:hover{background:var(--accent-light);color:var(--accent);border-color:var(--accent2);transform:translateY(-2px);box-shadow:0 4px 12px rgba(90,122,74,0.15);}
+/* Welcome screen */
+.welcome{
+  max-width:580px;margin:0 auto;
+  padding:56px 24px 32px;
+}
+.wel-greeting{
+  font-family:'Lora',serif;
+  font-size:clamp(1.5rem,4vw,2rem);
+  color:var(--text);margin-bottom:8px;
+}
+.wel-greeting em{font-style:italic;color:var(--accent);}
+.wel-sub{font-size:0.88rem;color:var(--text-dim);line-height:1.7;margin-bottom:32px;}
+
+.wel-section{font-size:0.68rem;font-weight:500;color:var(--text-dim);letter-spacing:0.1em;text-transform:uppercase;margin-bottom:10px;}
+.wel-chips{display:flex;flex-direction:column;gap:8px;margin-bottom:32px;}
+.wel-chip{
+  display:flex;align-items:center;gap:12px;
+  background:var(--bg);border:1px solid var(--border);
+  border-radius:var(--radius);padding:12px 16px;
+  cursor:pointer;transition:all 0.18s;
+  box-shadow:var(--shadow-sm);
+}
+.wel-chip:hover{border-color:var(--accent-border);background:var(--accent-soft);transform:translateX(4px);}
+.wel-chip-icon{font-size:1rem;flex-shrink:0;}
+.wel-chip-text{font-size:0.84rem;color:var(--text-dim);}
+.wel-chip:hover .wel-chip-text{color:var(--accent);}
+.wel-chip-arr{margin-left:auto;color:var(--text-light);font-size:0.8rem;transition:transform 0.18s;}
+.wel-chip:hover .wel-chip-arr{transform:translateX(3px);color:var(--accent);}
 
 /* Messages */
-.msg-wrap{max-width:700px;margin:0 auto;padding:8px 18px;}
-.msg-row{display:flex;gap:12px;align-items:flex-start;animation:msgIn 0.3s ease;}
-@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-.msg-row.user{justify-content:flex-end;margin-bottom:12px;}
-.msg-row.jarvis{margin-bottom:16px;}
-.j-avatar{width:30px;height:30px;flex-shrink:0;background:var(--accent);border-radius:8px;display:flex;align-items:center;justify-content:center;font-family:'DM Serif Display',serif;font-size:0.8rem;color:#fff;margin-top:2px;box-shadow:0 2px 6px rgba(90,122,74,0.2);}
-.user-bubble{background:var(--user-bg);border:1px solid var(--border);border-radius:14px 14px 2px 14px;padding:10px 15px;max-width:78%;font-size:0.86rem;line-height:1.7;}
-.j-body{flex:1;padding-top:2px;}
-.j-body p{margin:5px 0;font-size:0.86rem;line-height:1.8;color:var(--text);}
+.msg-page{max-width:680px;margin:0 auto;padding:20px 24px;}
+.msg-group{margin-bottom:28px;animation:msgIn 0.3s ease;}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+.msg-user{
+  display:flex;justify-content:flex-end;
+  margin-bottom:6px;
+}
+.user-bubble{
+  background:var(--user-bg);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg) var(--radius-lg) 4px var(--radius-lg);
+  padding:11px 16px;max-width:80%;
+  font-size:0.88rem;line-height:1.7;
+}
+
+.msg-jarvis{display:flex;gap:12px;align-items:flex-start;}
+.j-av{
+  width:28px;height:28px;flex-shrink:0;
+  background:var(--accent);border-radius:7px;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Lora',serif;font-size:0.78rem;color:#fff;
+  margin-top:3px;
+}
+.j-content{flex:1;min-width:0;}
+.j-name{font-size:0.68rem;font-weight:500;color:var(--text-dim);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:6px;}
+.j-body{font-size:0.88rem;line-height:1.85;color:var(--text);}
+.j-body p{margin:6px 0;}
 .j-body strong{font-weight:600;}
-.j-body ul,.j-body ol{padding-left:20px;margin:7px 0;}
-.j-body li{margin:4px 0;font-size:0.86rem;line-height:1.7;}
-.j-body h1,.j-body h2,.j-body h3{font-family:'DM Serif Display',serif;font-size:1.02rem;font-weight:400;margin:12px 0 5px;}
-.j-body code{background:var(--surface2);border:1px solid var(--border);border-radius:4px;padding:1px 5px;font-size:0.8rem;color:var(--accent);}
-.j-body pre{background:var(--surface2);border:1px solid var(--border);border-radius:9px;padding:12px;margin:9px 0;overflow-x:auto;}
+.j-body ul,.j-body ol{padding-left:20px;margin:8px 0;}
+.j-body li{margin:5px 0;line-height:1.75;}
+.j-body h1,.j-body h2,.j-body h3{font-family:'Lora',serif;font-size:1rem;font-weight:500;margin:14px 0 6px;}
+.j-body code{background:var(--bg2);border:1px solid var(--border);border-radius:5px;padding:1px 6px;font-size:0.81rem;color:var(--accent);}
+.j-body pre{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;margin:10px 0;overflow-x:auto;}
+.j-body blockquote{border-left:3px solid var(--accent-border);padding-left:14px;color:var(--text-dim);margin:10px 0;}
 
-/* Typing cursor */
-.typing-cursor{display:inline-block;width:2px;height:1em;background:var(--accent);margin-left:1px;animation:blink 0.7s infinite;vertical-align:text-bottom;}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:0}}
+.typing-cursor{display:inline-block;width:2px;height:0.9em;background:var(--accent);margin-left:1px;animation:cur 0.7s infinite;vertical-align:text-bottom;}
+@keyframes cur{0%,100%{opacity:1}50%{opacity:0}}
 
-.thinking{display:flex;align-items:center;gap:5px;padding:6px 0;}
-.t-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);animation:think 1.4s ease-in-out infinite;}
+.thinking{display:flex;align-items:center;gap:4px;padding:4px 0;}
+.t-dot{width:5px;height:5px;border-radius:50%;background:var(--border2);animation:tdot 1.4s ease-in-out infinite;}
 .t-dot:nth-child(2){animation-delay:0.2s}.t-dot:nth-child(3){animation-delay:0.4s}
-@keyframes think{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
+@keyframes tdot{0%,100%{opacity:0.3;transform:scale(1)}50%{opacity:1;transform:scale(1.3)}}
 
 /* Input */
-.input-wrap{padding:10px 18px 18px;flex-shrink:0;background:var(--surface);}
-.input-box{max-width:700px;margin:0 auto;background:var(--surface);border:1px solid var(--border2);border-radius:14px;transition:all 0.2s;box-shadow:0 2px 12px var(--shadow);}
-.input-box:focus-within{border-color:var(--accent2);box-shadow:0 2px 16px rgba(90,122,74,0.12);}
-.input-inner{display:flex;align-items:flex-end;padding:12px 13px 10px;}
-textarea{flex:1;background:transparent;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:0.86rem;font-weight:300;resize:none;line-height:1.6;max-height:160px;min-height:24px;}
+.input-area{
+  border-top:1px solid var(--border);
+  padding:14px 24px 20px;
+  background:var(--bg);flex-shrink:0;
+}
+.input-inner{
+  max-width:680px;margin:0 auto;
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  border-radius:var(--radius-lg);
+  transition:all 0.2s;
+  box-shadow:var(--shadow-sm);
+}
+.input-inner:focus-within{
+  background:var(--bg);
+  border-color:var(--accent-border);
+  box-shadow:0 0 0 3px var(--accent-soft),var(--shadow-sm);
+}
+.input-row{display:flex;align-items:flex-end;padding:12px 14px 10px;}
+textarea{
+  flex:1;background:transparent;border:none;outline:none;
+  color:var(--text);font-family:'Inter',sans-serif;
+  font-size:0.88rem;font-weight:300;resize:none;
+  line-height:1.65;max-height:160px;min-height:24px;
+}
 textarea::placeholder{color:var(--text-light)}
-.send{width:33px;height:33px;background:var(--accent);border:none;border-radius:9px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-left:9px;transition:all 0.15s;opacity:0.3;}
-.send.on{opacity:1;box-shadow:0 2px 8px rgba(90,122,74,0.3);}
-.send:hover{background:var(--accent2);}
-.send svg{width:13px;height:13px;fill:#fff;}
-.input-hint{text-align:center;padding:6px;font-size:0.63rem;color:var(--text-light);border-top:1px solid var(--border);}
-
-/* Overlay for mobile sidebar */
-.overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.3);z-index:40;}
-.overlay.show{display:block;}
+.send-btn{
+  width:32px;height:32px;background:var(--accent);
+  border:none;border-radius:8px;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;margin-left:9px;opacity:0.25;
+  transition:all 0.15s;
+}
+.send-btn.on{opacity:1;box-shadow:0 2px 8px rgba(47,111,63,0.25);}
+.send-btn svg{width:13px;height:13px;fill:#fff;}
+.input-foot{
+  display:flex;align-items:center;justify-content:center;
+  padding:7px 14px;border-top:1px solid var(--border);
+  font-size:0.63rem;color:var(--text-light);gap:6px;
+}
+.input-foot span{display:flex;align-items:center;gap:4px;}
 </style>
 </head>
 <body>
 
-<!-- LANDING PAGE -->
+<!-- LANDING -->
 <div id="landing">
-  <div class="land-badge">
-    <div class="land-dot"></div>
-    AI Assistant by Om Raut
+  <nav class="land-nav">
+    <div class="land-nav-logo">
+      <div class="nav-icon">J</div>
+      <span class="nav-name">Jarvis</span>
+    </div>
+    <span class="nav-tag">Built by Om Raut</span>
+  </nav>
+
+  <div class="land-body">
+    <div class="land-eyebrow"><div class="eye-dot"></div>AI Assistant &mdash; Live Now</div>
+    <h1 class="land-h">Think it.<br><em>Ask Jarvis.</em><br>Get answers.</h1>
+    <p class="land-p">A personal AI assistant built from scratch using Python, Flask & Groq. Ask anything — from coding help to exam prep to creative writing.</p>
+    <div class="land-actions">
+      <button class="btn-primary" onclick="startApp()">
+        Start chatting
+        <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-secondary" onclick="startApp()">See a demo</button>
+    </div>
+    <div class="land-cards">
+      <div class="land-card"><div class="card-icon">⚡</div><div class="card-title">Fast</div><div class="card-desc">Powered by Llama 3.3 70B</div></div>
+      <div class="land-card"><div class="card-icon">🧠</div><div class="card-title">Smart</div><div class="card-desc">Understands context deeply</div></div>
+      <div class="land-card"><div class="card-icon">📱</div><div class="card-title">Mobile</div><div class="card-desc">Works great on any device</div></div>
+      <div class="land-card"><div class="card-icon">🎨</div><div class="card-title">Beautiful</div><div class="card-desc">Notion-inspired clean UI</div></div>
+    </div>
   </div>
-  <div class="land-icon">J</div>
-  <h1 class="land-title">Meet <em>Jarvis</em>,<br>Your Personal AI</h1>
-  <p class="land-sub">An intelligent assistant that thinks, explains, and helps — built from scratch by Om Raut using Python, Flask, and Groq AI.</p>
-  <button class="land-cta" onclick="startApp()">
-    Start Chatting
-    <svg viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-  </button>
-  <div class="land-features">
-    <div class="land-feat"><span class="land-feat-icon">🧠</span> Powered by Llama 3.3</div>
-    <div class="land-feat"><span class="land-feat-icon">⚡</span> Fast responses</div>
-    <div class="land-feat"><span class="land-feat-icon">🎨</span> Beautiful UI</div>
-    <div class="land-feat"><span class="land-feat-icon">📱</span> Mobile friendly</div>
-  </div>
-  <div class="land-credit">Built with ❤️ by Om Raut &nbsp;·&nbsp; Deployed on Railway</div>
+  <div class="land-foot">© 2025 Om Raut &nbsp;·&nbsp; JARVIS AI &nbsp;·&nbsp; Deployed on Railway</div>
 </div>
 
-<!-- MAIN APP -->
+<!-- APP -->
 <div id="app">
-  <div class="overlay" id="overlay" onclick="closeSidebar()"></div>
-  <div class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <div class="logo-wrap">
-        <div class="logo-icon">J</div>
-        <div class="logo-text">Jarvis</div>
+  <div class="topbar">
+    <div class="tb-left">
+      <div class="tb-logo">
+        <div class="tb-icon">J</div>
+        <span class="tb-name">Jarvis</span>
       </div>
-      <button class="new-btn" onclick="newChat()">+ &nbsp; New conversation</button>
+      <div class="tb-divider"></div>
+      <div class="tb-model"><div class="online-dot"></div>Online</div>
     </div>
-    <div class="section-label">Recent</div>
-    <div class="chat-list"><div class="chat-entry active" id="current-chat">New conversation</div></div>
-    <div class="sidebar-footer">
-      <div class="user-card">
-        <div class="avatar">O</div>
-        <div><div class="user-name">Om Raut</div><div class="user-sub">JARVIS AI</div></div>
+    <div class="tb-right">
+      <button class="new-chat-tb" onclick="newChat()">+ New chat</button>
+      <button class="tb-btn" onclick="shareApp()">Share</button>
+    </div>
+  </div>
+
+  <div class="chat-area" id="chat">
+    <div class="welcome" id="welcome">
+      <div class="wel-greeting">Good day! I'm <em>Jarvis</em>.</div>
+      <p class="wel-sub">Your personal AI assistant by Om Raut. I can help you learn, code, write, and think. What's on your mind?</p>
+      <div class="wel-section">Suggested prompts</div>
+      <div class="wel-chips">
+        <div class="wel-chip" onclick="suggest('Explain artificial intelligence simply')"><span class="wel-chip-icon">💡</span><span class="wel-chip-text">Explain artificial intelligence simply</span><span class="wel-chip-arr">→</span></div>
+        <div class="wel-chip" onclick="suggest('Write a Python function to sort a list')"><span class="wel-chip-icon">🐍</span><span class="wel-chip-text">Write a Python function to sort a list</span><span class="wel-chip-arr">→</span></div>
+        <div class="wel-chip" onclick="suggest('Help me understand machine learning')"><span class="wel-chip-icon">🧠</span><span class="wel-chip-text">Help me understand machine learning</span><span class="wel-chip-arr">→</span></div>
+        <div class="wel-chip" onclick="suggest('Give me 5 productivity tips for students')"><span class="wel-chip-icon">📚</span><span class="wel-chip-text">Give me 5 productivity tips for students</span><span class="wel-chip-arr">→</span></div>
+        <div class="wel-chip" onclick="suggest('Who are you and what can you do?')"><span class="wel-chip-icon">🤖</span><span class="wel-chip-text">Who are you and what can you do?</span><span class="wel-chip-arr">→</span></div>
       </div>
     </div>
   </div>
 
-  <div class="main">
-    <div class="topbar">
-      <div class="topbar-left">
-        <button class="menu-btn" onclick="toggleSidebar()">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+  <div class="input-area">
+    <div class="input-inner">
+      <div class="input-row">
+        <textarea id="inp" rows="1" placeholder="Ask Jarvis anything..."
+          oninput="resize(this);toggleSend(this)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
+        <button class="send-btn" id="sendbtn" onclick="send()">
+          <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
         </button>
-        <div class="model-pill"><div class="status-dot"></div>JARVIS &mdash; Online</div>
       </div>
-      <button class="share-btn" onclick="shareApp()">Share</button>
-    </div>
-
-    <div class="chat-area" id="chat">
-      <div class="welcome" id="welcome">
-        <div class="welcome-icon">J</div>
-        <h1>Hi, I'm Jarvis</h1>
-        <p>Your personal AI assistant by Om Raut. Ask me anything!</p>
-        <div class="chips">
-          <div class="chip" onclick="suggest('Explain AI in simple words')">💡 Explain AI simply</div>
-          <div class="chip" onclick="suggest('Write a Python function for me')">🐍 Write Python code</div>
-          <div class="chip" onclick="suggest('What is machine learning?')">🧠 Machine learning?</div>
-          <div class="chip" onclick="suggest('Help me prepare for my exam')">📚 Exam help</div>
-          <div class="chip" onclick="suggest('Who are you?')">🤖 Who are you?</div>
-          <div class="chip" onclick="suggest('Give me productivity tips')">⚡ Productivity tips</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="input-wrap">
-      <div class="input-box">
-        <div class="input-inner">
-          <textarea id="inp" rows="1" placeholder="Message Jarvis..."
-            oninput="resize(this);toggleSend(this)"
-            onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();send()}"></textarea>
-          <button class="send" id="sendbtn" onclick="send()">
-            <svg viewBox="0 0 24 24"><path d="M2 21l21-9L2 3v7l15 2-15 2v7z"/></svg>
-          </button>
-        </div>
-        <div class="input-hint">Jarvis can make mistakes &nbsp;·&nbsp; Built by Om Raut</div>
+      <div class="input-foot">
+        <span>↵ Enter to send</span>
+        <span>·</span>
+        <span>Shift + Enter for new line</span>
+        <span>·</span>
+        <span>Built by Om Raut</span>
       </div>
     </div>
   </div>
@@ -340,41 +374,36 @@ marked.setOptions({breaks:true,gfm:true});
 var chat=document.getElementById('chat'),inp=document.getElementById('inp'),welcome=document.getElementById('welcome'),hasMsg=false;
 
 function startApp(){
-  document.getElementById('landing').classList.add('hide');
+  document.getElementById('landing').classList.add('out');
   setTimeout(function(){
-    document.getElementById('app').style.display='flex';
-    setTimeout(function(){document.getElementById('app').classList.add('show');},50);
-  },500);
+    document.getElementById('landing').style.display='none';
+    var app=document.getElementById('app');
+    app.classList.add('show');
+    inp.focus();
+  },480);
 }
 
-function toggleSidebar(){
-  document.getElementById('sidebar').classList.toggle('open');
-  document.getElementById('overlay').classList.toggle('show');
-}
-function closeSidebar(){
-  document.getElementById('sidebar').classList.remove('open');
-  document.getElementById('overlay').classList.remove('show');
-}
 function shareApp(){
-  if(navigator.share){navigator.share({title:'JARVIS AI',url:window.location.href});}
-  else{navigator.clipboard.writeText(window.location.href);alert('Link copied!');}
+  if(navigator.share){navigator.share({title:'JARVIS AI by Om Raut',url:window.location.href});}
+  else{navigator.clipboard.writeText(window.location.href).then(function(){alert('Link copied to clipboard!');});}
 }
+
 function resize(el){el.style.height='auto';el.style.height=Math.min(el.scrollHeight,160)+'px';}
 function toggleSend(el){document.getElementById('sendbtn').classList.toggle('on',el.value.trim().length>0);}
 function suggest(t){inp.value=t;toggleSend(inp);send();}
+
 function newChat(){
   while(chat.firstChild)chat.removeChild(chat.firstChild);
-  chat.appendChild(welcome);welcome.style.display='flex';
-  hasMsg=false;inp.value='';document.getElementById('current-chat').textContent='New conversation';
-  closeSidebar();
+  chat.appendChild(welcome);
+  welcome.style.display='block';
+  hasMsg=false;inp.value='';inp.style.height='auto';
 }
 
 function send(){
   var msg=inp.value.trim();if(!msg)return;
   if(!hasMsg){welcome.style.display='none';hasMsg=true;}
-  if(document.getElementById('current-chat').textContent==='New conversation')
-    document.getElementById('current-chat').textContent=msg.substring(0,26)+'...';
-  addUser(msg);inp.value='';inp.style.height='auto';
+  addUser(msg);
+  inp.value='';inp.style.height='auto';
   document.getElementById('sendbtn').classList.remove('on');
   var t=addThink();
   fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
@@ -383,49 +412,57 @@ function send(){
 }
 
 function addUser(text){
-  var w=document.createElement('div');w.className='msg-wrap';
-  var r=document.createElement('div');r.className='msg-row user';
+  var pg=document.createElement('div');pg.className='msg-page';
+  var g=document.createElement('div');g.className='msg-group';
+  var u=document.createElement('div');u.className='msg-user';
   var b=document.createElement('div');b.className='user-bubble';b.textContent=text;
-  r.appendChild(b);w.appendChild(r);chat.appendChild(w);chat.scrollTop=chat.scrollHeight;
+  u.appendChild(b);g.appendChild(u);pg.appendChild(g);
+  chat.appendChild(pg);chat.scrollTop=chat.scrollHeight;
 }
 
 function typeJarvis(text){
-  var w=document.createElement('div');w.className='msg-wrap';
-  var r=document.createElement('div');r.className='msg-row jarvis';
-  var av=document.createElement('div');av.className='j-avatar';av.textContent='J';
+  var pg=document.createElement('div');pg.className='msg-page';
+  var g=document.createElement('div');g.className='msg-group';
+  var j=document.createElement('div');j.className='msg-jarvis';
+  var av=document.createElement('div');av.className='j-av';av.textContent='J';
+  var con=document.createElement('div');con.className='j-content';
+  var nm=document.createElement('div');nm.className='j-name';nm.textContent='Jarvis';
   var body=document.createElement('div');body.className='j-body';
-  r.appendChild(av);r.appendChild(body);w.appendChild(r);chat.appendChild(w);
+  con.appendChild(nm);con.appendChild(body);
+  j.appendChild(av);j.appendChild(con);g.appendChild(j);pg.appendChild(g);
+  chat.appendChild(pg);
 
-  // Type word by word
-  var words=text.split(' ');
-  var current='';
-  var i=0;
+  var words=text.split(' ');var current='';var i=0;
   var cursor=document.createElement('span');cursor.className='typing-cursor';
 
-  function typeNext(){
+  function next(){
     if(i<words.length){
-      current+=( i>0?' ':'')+words[i];
+      current+=(i>0?' ':'')+words[i];
       body.innerHTML=marked.parse(current);
       body.appendChild(cursor);
       chat.scrollTop=chat.scrollHeight;
-      i++;
-      setTimeout(typeNext, 18);
+      i++;setTimeout(next,16);
     } else {
       body.innerHTML=marked.parse(current);
       chat.scrollTop=chat.scrollHeight;
     }
   }
-  typeNext();
+  next();
 }
 
 function addThink(){
-  var w=document.createElement('div');w.className='msg-wrap';
-  var r=document.createElement('div');r.className='msg-row jarvis';
-  var av=document.createElement('div');av.className='j-avatar';av.textContent='J';
+  var pg=document.createElement('div');pg.className='msg-page';
+  var g=document.createElement('div');g.className='msg-group';
+  var j=document.createElement('div');j.className='msg-jarvis';
+  var av=document.createElement('div');av.className='j-av';av.textContent='J';
+  var con=document.createElement('div');con.className='j-content';
+  var nm=document.createElement('div');nm.className='j-name';nm.textContent='Jarvis';
   var body=document.createElement('div');body.className='j-body';
   body.innerHTML='<div class="thinking"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div>';
-  r.appendChild(av);r.appendChild(body);w.appendChild(r);chat.appendChild(w);chat.scrollTop=chat.scrollHeight;
-  return w;
+  con.appendChild(nm);con.appendChild(body);
+  j.appendChild(av);j.appendChild(con);g.appendChild(j);pg.appendChild(g);
+  chat.appendChild(pg);chat.scrollTop=chat.scrollHeight;
+  return pg;
 }
 </script>
 </body>
