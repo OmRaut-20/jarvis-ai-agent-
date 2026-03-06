@@ -7,7 +7,7 @@ client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 CORS(app)
 
- SYSTEM_PROMPT = """You are JARVIS, a friendly AI assistant made by Om Raut.
+SYSTEM_PROMPT = """You are JARVIS, a friendly AI assistant made by Om Raut.
 
 STRICT RULES - always follow these:
 - Reply in 1-3 short sentences only
@@ -125,7 +125,7 @@ def chat():
                 {"role": "system", "content": SYSTEM_PROMPT},
                 {"role": "user", "content": msg}
             ],
-            max_tokens=200,
+            max_tokens=150,
             temperature=0.7
         )
         return jsonify({"reply": res.choices[0].message.content})
@@ -134,3 +134,4 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+       
