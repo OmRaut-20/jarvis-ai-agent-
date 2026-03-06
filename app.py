@@ -5,8 +5,6 @@ from groq import Groq
 client = Groq(api_key=os.environ.get("GROQ_API_KEY"))
 app = Flask(__name__)
 
-HTML = open("templates/index.html").read() if os.path.exists("templates/index.html") else ""
-
 @app.route("/")
 def home():
     return """<!DOCTYPE html>
@@ -15,172 +13,157 @@ def home():
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>JARVIS</title>
-<link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500&family=Playfair+Display:wght@400;500&display=swap" rel="stylesheet">
 <style>
 *{margin:0;padding:0;box-sizing:border-box}
 :root{
-  --bg:#080808;
-  --surface:#0f0f0f;
-  --border:#1a1a1a;
-  --border-light:#242424;
-  --text:#e8e8e8;
-  --text-dim:#666;
-  --accent:#e8e8e8;
-  --green:#4ade80;
-  --green-dim:#1a3a25;
+  --bg:#f5f4f0;
+  --surface:#ffffff;
+  --border:#e8e6e0;
+  --text:#1a1916;
+  --text-dim:#9a9690;
+  --text-light:#c4c2bc;
+  --accent:#1a1916;
+  --green:#2d6a4f;
+  --user-bg:#f0ede6;
 }
 body{
   background:var(--bg);
   color:var(--text);
-  font-family:'DM Mono',monospace;
+  font-family:'Inter',sans-serif;
   min-height:100vh;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  padding:24px;
-  position:relative;
-  overflow:hidden;
-}
-body::before{
-  content:'';
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background:radial-gradient(ellipse 80% 50% at 50% -20%, #1a1a1a 0%, transparent 60%);
-  pointer-events:none;
-}
-.grid-bg{
-  position:fixed;
-  top:0;left:0;right:0;bottom:0;
-  background-image:linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px),
-                   linear-gradient(90deg, rgba(255,255,255,0.02) 1px, transparent 1px);
-  background-size:48px 48px;
-  pointer-events:none;
+  padding:32px 24px;
 }
 .container{
   width:100%;
-  max-width:720px;
-  position:relative;
-  z-index:1;
+  max-width:680px;
 }
 header{
-  margin-bottom:40px;
-  display:flex;
-  align-items:flex-end;
-  justify-content:space-between;
+  text-align:center;
+  margin-bottom:48px;
 }
 .logo{
-  font-family:'Syne',sans-serif;
-  font-weight:800;
-  font-size:2.8rem;
-  letter-spacing:-0.03em;
+  font-family:'Playfair Display',serif;
+  font-weight:400;
+  font-size:2.2rem;
   color:var(--text);
-  line-height:1;
+  letter-spacing:0.08em;
+  margin-bottom:8px;
 }
-.logo span{
-  color:var(--green);
+.tagline{
+  font-size:0.75rem;
+  color:var(--text-dim);
+  letter-spacing:0.15em;
+  text-transform:uppercase;
+  font-weight:300;
 }
-.status{
+.status-bar{
   display:flex;
   align-items:center;
-  gap:8px;
-  font-size:0.7rem;
+  justify-content:center;
+  gap:6px;
+  margin-top:14px;
+}
+.dot{
+  width:5px;height:5px;
+  border-radius:50%;
+  background:var(--green);
+  animation:breathe 3s ease-in-out infinite;
+}
+@keyframes breathe{
+  0%,100%{opacity:0.4;transform:scale(1)}
+  50%{opacity:1;transform:scale(1.2)}
+}
+.status-text{
+  font-size:0.68rem;
   color:var(--text-dim);
   letter-spacing:0.1em;
   text-transform:uppercase;
-  padding-bottom:4px;
-}
-.status-dot{
-  width:6px;height:6px;
-  border-radius:50%;
-  background:var(--green);
-  box-shadow:0 0 8px var(--green);
-  animation:pulse 2s infinite;
-}
-@keyframes pulse{
-  0%,100%{opacity:1}
-  50%{opacity:0.4}
 }
 .chat-window{
   background:var(--surface);
   border:1px solid var(--border);
-  border-radius:4px;
-  height:460px;
+  border-radius:16px;
+  height:440px;
   overflow-y:auto;
-  padding:24px;
-  margin-bottom:2px;
+  padding:28px;
+  margin-bottom:12px;
   scroll-behavior:smooth;
+  box-shadow:0 2px 40px rgba(0,0,0,0.04), 0 1px 3px rgba(0,0,0,0.06);
 }
 .chat-window::-webkit-scrollbar{width:3px}
 .chat-window::-webkit-scrollbar-track{background:transparent}
-.chat-window::-webkit-scrollbar-thumb{background:var(--border-light)}
+.chat-window::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
 .empty-state{
   height:100%;
   display:flex;
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  gap:12px;
-  color:var(--text-dim);
+  gap:10px;
 }
-.empty-state .big-text{
-  font-family:'Syne',sans-serif;
-  font-size:4rem;
-  font-weight:800;
-  color:#1a1a1a;
-  letter-spacing:-0.05em;
+.empty-icon{
+  font-family:'Playfair Display',serif;
+  font-size:3.5rem;
+  color:var(--text-light);
+  letter-spacing:0.1em;
 }
-.empty-state .hint{
-  font-size:0.75rem;
-  letter-spacing:0.08em;
+.empty-hint{
+  font-size:0.72rem;
+  color:var(--text-light);
+  letter-spacing:0.12em;
   text-transform:uppercase;
 }
 .message{
-  margin-bottom:20px;
-  animation:fadeUp 0.3s ease;
+  margin-bottom:24px;
+  animation:appear 0.4s ease;
 }
-@keyframes fadeUp{
-  from{opacity:0;transform:translateY(8px)}
+@keyframes appear{
+  from{opacity:0;transform:translateY(6px)}
   to{opacity:1;transform:translateY(0)}
 }
-.message-meta{
-  font-size:0.65rem;
-  letter-spacing:0.1em;
+.message-label{
+  font-size:0.62rem;
+  letter-spacing:0.14em;
   text-transform:uppercase;
-  margin-bottom:6px;
+  font-weight:500;
+  margin-bottom:7px;
+  color:var(--text-dim);
 }
-.message.user .message-meta{color:var(--text-dim)}
-.message.jarvis .message-meta{color:var(--green)}
-.message-text{
-  font-size:0.875rem;
-  line-height:1.7;
+.message.jarvis .message-label{
+  color:var(--green);
+}
+.message-bubble{
+  font-size:0.9rem;
+  line-height:1.75;
   color:var(--text);
-  padding:12px 16px;
-  border-left:2px solid var(--border-light);
+  font-weight:300;
 }
-.message.jarvis .message-text{
-  border-left-color:var(--green);
-  background:var(--green-dim);
-  border-radius:0 4px 4px 0;
+.message.user .message-bubble{
+  color:var(--text-dim);
 }
-.message.user .message-text{
-  border-left-color:var(--border-light);
+.divider{
+  height:1px;
+  background:var(--border);
+  margin:20px 0;
 }
 .input-area{
-  border:1px solid var(--border);
-  border-top:none;
   background:var(--surface);
-  border-radius:0 0 4px 4px;
+  border:1px solid var(--border);
+  border-radius:12px;
   display:flex;
   align-items:center;
-  gap:0;
-  overflow:hidden;
+  padding:4px 4px 4px 20px;
+  box-shadow:0 2px 20px rgba(0,0,0,0.04);
+  transition:border-color 0.2s, box-shadow 0.2s;
 }
-.prompt-symbol{
-  padding:0 16px;
-  color:var(--green);
-  font-size:0.9rem;
-  flex-shrink:0;
+.input-area:focus-within{
+  border-color:#c4c2bc;
+  box-shadow:0 2px 20px rgba(0,0,0,0.08);
 }
 input{
   flex:1;
@@ -188,124 +171,130 @@ input{
   border:none;
   outline:none;
   color:var(--text);
-  font-family:'DM Mono',monospace;
+  font-family:'Inter',sans-serif;
   font-size:0.875rem;
-  padding:16px 0;
-  letter-spacing:0.02em;
+  font-weight:300;
+  padding:12px 0;
+  letter-spacing:0.01em;
 }
-input::placeholder{color:var(--text-dim)}
+input::placeholder{color:var(--text-light)}
 button{
-  background:transparent;
+  background:var(--text);
   border:none;
-  border-left:1px solid var(--border);
-  color:var(--text-dim);
-  font-family:'DM Mono',monospace;
-  font-size:0.7rem;
-  letter-spacing:0.1em;
+  color:#f5f4f0;
+  font-family:'Inter',sans-serif;
+  font-size:0.72rem;
+  font-weight:500;
+  letter-spacing:0.08em;
   text-transform:uppercase;
-  padding:16px 20px;
+  padding:11px 20px;
+  border-radius:8px;
   cursor:pointer;
-  transition:all 0.15s;
+  transition:all 0.2s;
   white-space:nowrap;
+  flex-shrink:0;
 }
 button:hover{
-  color:var(--text);
-  background:var(--border);
+  background:#333;
+  transform:translateY(-1px);
 }
 .thinking{
   display:flex;
   align-items:center;
-  gap:6px;
-  padding:8px 0;
+  gap:5px;
+  padding:4px 0;
 }
-.thinking-dot{
-  width:4px;height:4px;
+.t-dot{
+  width:5px;height:5px;
   border-radius:50%;
-  background:var(--green);
-  animation:think 1.2s infinite;
+  background:var(--text-light);
+  animation:think 1.4s ease-in-out infinite;
 }
-.thinking-dot:nth-child(2){animation-delay:0.2s}
-.thinking-dot:nth-child(3){animation-delay:0.4s}
+.t-dot:nth-child(2){animation-delay:0.2s}
+.t-dot:nth-child(3){animation-delay:0.4s}
 @keyframes think{
-  0%,100%{opacity:0.2;transform:scale(1)}
-  50%{opacity:1;transform:scale(1.3)}
+  0%,100%{opacity:0.3;transform:translateY(0)}
+  50%{opacity:1;transform:translateY(-3px)}
 }
 footer{
-  margin-top:20px;
-  display:flex;
-  justify-content:space-between;
-  align-items:center;
+  margin-top:16px;
+  text-align:center;
   font-size:0.65rem;
-  color:var(--text-dim);
-  letter-spacing:0.08em;
+  color:var(--text-light);
+  letter-spacing:0.1em;
   text-transform:uppercase;
 }
 </style>
 </head>
 <body>
-<div class="grid-bg"></div>
 <div class="container">
   <header>
-    <div class="logo">JAR<span>V</span>IS</div>
-    <div class="status"><div class="status-dot"></div>System Online</div>
+    <div class="logo">Jarvis</div>
+    <div class="tagline">Your personal AI assistant</div>
+    <div class="status-bar">
+      <div class="dot"></div>
+      <span class="status-text">Online &mdash; Ready</span>
+    </div>
   </header>
+
   <div class="chat-window" id="chat">
     <div class="empty-state" id="empty">
-      <div class="big-text">J.</div>
-      <div class="hint">Begin your query</div>
+      <div class="empty-icon">J.</div>
+      <div class="empty-hint">How can I help you today?</div>
     </div>
   </div>
+
   <div class="input-area">
-    <div class="prompt-symbol">&#62;</div>
-    <input type="text" id="inp" placeholder="Ask me anything..." onkeypress="if(event.key==='Enter')send()" autofocus/>
-    <button onclick="send()">Execute</button>
+    <input type="text" id="inp" placeholder="Ask Jarvis anything..." onkeypress="if(event.key==='Enter')send()" autofocus/>
+    <button onclick="send()">Send</button>
   </div>
-  <footer>
-    <span>JARVIS AI &mdash; Powered by Llama 3.3</span>
-    <span>Built by Om Raut</span>
-  </footer>
+
+  <footer>Built by Om Raut &nbsp;&middot;&nbsp; Powered by Llama 3.3</footer>
 </div>
+
 <script>
 var empty = document.getElementById('empty');
 var chat = document.getElementById('chat');
 var inp = document.getElementById('inp');
 var hasMessages = false;
+var msgCount = 0;
 
 function send(){
   var msg = inp.value.trim();
   if(!msg) return;
   if(!hasMessages){ empty.style.display='none'; hasMessages=true; }
+  else { addDivider(); }
   addMessage('user', msg);
-  inp.value = '';
-  var thinking = addThinking();
+  inp.value='';
+  var t = addThinking();
   fetch('/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({message:msg})})
     .then(function(r){return r.json()})
-    .then(function(d){
-      thinking.remove();
-      addMessage('jarvis', d.reply);
-    })
-    .catch(function(){
-      thinking.remove();
-      addMessage('jarvis','Connection error. Please try again.');
-    });
+    .then(function(d){t.remove();addDivider();addMessage('jarvis',d.reply)})
+    .catch(function(){t.remove();addDivider();addMessage('jarvis','Something went wrong. Please try again.')});
 }
 
 function addMessage(role, text){
   var div = document.createElement('div');
-  div.className = 'message ' + role;
-  var meta = role === 'user' ? 'You' : 'JARVIS';
-  div.innerHTML = '<div class="message-meta">'+meta+'</div><div class="message-text">'+text+'</div>';
+  div.className='message '+role;
+  var label = role==='user' ? 'You' : 'Jarvis';
+  div.innerHTML='<div class="message-label">'+label+'</div><div class="message-bubble">'+text+'</div>';
   chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
+  chat.scrollTop=chat.scrollHeight;
   return div;
 }
 
+function addDivider(){
+  var d=document.createElement('div');
+  d.className='divider';
+  chat.appendChild(d);
+}
+
 function addThinking(){
-  var div = document.createElement('div');
-  div.className = 'message jarvis';
-  div.innerHTML = '<div class="message-meta">JARVIS</div><div class="message-text"><div class="thinking"><div class="thinking-dot"></div><div class="thinking-dot"></div><div class="thinking-dot"></div></div></div>';
+  var div=document.createElement('div');
+  div.className='message jarvis';
+  div.innerHTML='<div class="message-label">Jarvis</div><div class="message-bubble"><div class="thinking"><div class="t-dot"></div><div class="t-dot"></div><div class="t-dot"></div></div></div>';
   chat.appendChild(div);
-  chat.scrollTop = chat.scrollHeight;
+  chat.scrollTop=chat.scrollHeight;
   return div;
 }
 </script>
@@ -327,3 +316,6 @@ def chat():
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 5000)))
+
+ 
+
