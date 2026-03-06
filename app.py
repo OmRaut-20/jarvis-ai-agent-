@@ -2,7 +2,6 @@ import os
 from flask import Flask, request, jsonify, render_template_string
 import google.generativeai as genai
 
-# Configure Gemini API
 genai.configure(api_key=os.environ.get("GEMINI_API_KEY"))
 model = genai.GenerativeModel("gemini-1.5-flash")
 
@@ -21,7 +20,6 @@ HTML = """
         .jarvis-msg { color: #00ff88; margin: 10px 0; }
         input { width: 75%; padding: 12px; border-radius: 8px; border: 1px solid #00ff88; background: #111; color: #fff; font-size: 1em; }
         button { padding: 12px 20px; background: #00ff88; color: #000; border: none; border-radius: 8px; font-size: 1em; cursor: pointer; }
-        button:hover { background: #00cc66; }
     </style>
 </head>
 <body>
@@ -66,4 +64,3 @@ def chat():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port)
-    
